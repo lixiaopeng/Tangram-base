@@ -1,21 +1,25 @@
 module('baidu.sio.callByServer');
 
-test('callback is function', function() {
-	stop();
-	var check = function(text) {
-		equals(text, 'i am from server');
-		start();
-	};
-	baidu.sio.callByServer(upath + "callByServer.php", check);
+test('queryField is input manually and callback is a function',function(){
+stop();
+var check=function(text){
+equals(text,'i am from server');
+start();
+};
+baidu.sio.callByServer(upath+"callByServer.php",check,{
+queryField : "callback"
+});
 });
 
-test('callback is string', function() {
-	stop();
-	window.check_string = function(text) {
-		equals(text, 'i am from server');
-		start();
-	};
-	baidu.sio.callByServer(upath + "callByServer.php", "check_string");
+test('queryField is input manually and callback is a string',function(){
+  stop();
+window.check_string=function(text){
+	equals(text,'i am from server');
+	start();
+};
+baidu.sio.callByServer(upath+"callByServer.php","check_string",{
+	queryField : "callback"
+});
 });
 
 test('charset utf-8', function() {
@@ -39,6 +43,15 @@ test('charset gbk', function() {
 		charset : "GBK"
 	});
 });
+
+//test('check no callback params ',function() {
+//	stop();
+//	baidu.sio.callByServer(upath + "callByServer.php?callback=test");
+//	ok(true,true,"just for check no callback params.");	
+//	setTimeout(function() {
+//		start();
+//	}, 100);
+//});
 
 // modify by bell, 貌似短期没有修改计划，尚未实现
 //test('确保所有动态创建的script都被删除了', function() {

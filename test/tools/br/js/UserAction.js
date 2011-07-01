@@ -1,22 +1,26 @@
+var UserAction =
 /**
- * 测试用例库文件，提供如event mock、iframe封装等各种常用功能 部分方法来源于YUI测试框架
+ * 用例中常用方法的集合
+ * 
+ * @author bellcliff
+ * @type UserAction
  */
-UserAction = {
+{
 	beforedispatch : null,
 	isf /* is function ? */: function(value) {
-		return value && (typeof value == 'function')
+		return value && (typeof value == 'function');
 	},
 	isb /* is boolean? */: function(value) {
-		return value && (typeof value == 'boolean')
+		return value && (typeof value == 'boolean');
 	},
 	iso /* is object? */: function(value) {
-		return value && (typeof value == 'object')
+		return value && (typeof value == 'object');
 	},
 	iss /* is string? */: function(value) {
-		return value && (typeof value == 'string')
+		return value && (typeof value == 'string');
 	},
 	isn /* is number? */: function(value) {
-		return value && (typeof value == 'number')
+		return value && (typeof value == 'number');
 	},
 	// --------------------------------------------------------------------------
 	// Generic event methods
@@ -758,7 +762,7 @@ UserAction = {
 		op.finish = function() {
 			pw.$(fid).unbind();
 			setTimeout(function() {
-				pw.$('div#d').remove();
+				pw.$('div#div'+id).remove();
 				start();
 			}, 20);
 		};
@@ -774,6 +778,12 @@ UserAction = {
 				url = this.src.split('import.php')[1];
 			}
 		});
+		var srcpath = '';
+		if(location.href.indexOf("/run.do") > 0) {
+			srcpath = location.href.replace("run.do","frame.do");
+		} else {
+			srcpath = cpath + 'frame.php' + url;
+		}
 		pw.$(fid).one('load', function(e) {
 			var w = e.target.contentWindow;
 			var h = setInterval(function() {
@@ -783,7 +793,7 @@ UserAction = {
 				}
 			}, 20);
 			// 找到当前操作的iframe，然后call ontest
-		}).attr('src', cpath + 'frame.php' + url);
+		}).attr('src', srcpath);
 	},
 
 	/**
@@ -817,7 +827,13 @@ UserAction = {
 	commonData : {// 针对测试文件的路径而不是UserAction的路径
 		"testdir" : '../../',
 		datadir : (function() {
-			return location.href.split("/test/")[0] + "/test/tools/data/";
+			var href = '';
+			if(location.href.indexOf("/run.do") > 0) {
+				href = location.href.split("/run.do")[0] + "/test/tools/data/";
+			} else {
+				href = location.href.split("/test/")[0] + "/test/tools/data/";
+			}
+			return href;
 		})(),
 		currentPath : function() {
 			var params = location.search.substring(1).split('&');
@@ -825,9 +841,17 @@ UserAction = {
 				var p = params[i];
 				if (p.split('=')[0] == 'case') {
 					var casepath = p.split('=')[1].split('.').join('/');
-					return location.href.split('/test/')[0] + '/test/'
-							+ casepath.substring(0, casepath.lastIndexOf('/'))
-							+ '/';
+					var href = '';
+					if(location.href.indexOf("/run.do") > 0) {
+						href = location.href.split('/run.do')[0] + '/test/'
+						+ casepath.substring(0, casepath.lastIndexOf('/'))
+						+ '/';
+					} else {
+						href = location.href.split('/test/')[0] + '/test/'
+						+ casepath.substring(0, casepath.lastIndexOf('/'))
+						+ '/';
+					}
+					return href;
 				}
 			}
 			return "";
@@ -847,8 +871,14 @@ UserAction = {
 		win = win || window;
 		var doc = win.document;
 
-		var srcpath = location.href.split("/test/")[0]
-				+ "/test/tools/br/import.php";
+		var srcpath = '';
+		if(location.href.indexOf("/run.do") > 0) {
+			srcpath = location.href.split("/run.do")[0]
+			+ "/test/tools/br/import.php";
+		} else {
+			srcpath =location.href.split("/test/")[0]
+			+ "/test/tools/br/import.php";
+		}
 		var param0 = src;
 		var ps = {
 			f : src
@@ -945,6 +975,9 @@ UserAction = {
 		}, timeout);
 	},
 
+	/**
+	 * @constructor
+	 */
 	browser : (function() {
 		var win = window;
 
@@ -1091,7 +1124,7 @@ UserAction = {
 
 		},
 
-		ua = nav && nav.userAgent,
+		_ua = nav && nav.userAgent,
 
 		loc = win && win.location,
 
@@ -1101,30 +1134,30 @@ UserAction = {
 
 		o.secure = href && (href.toLowerCase().indexOf("https") === 0);
 
-		if (ua) {
+		if (_ua) {
 
-			if ((/windows|win32/i).test(ua)) {
+			if ((/windows|win32/i).test(_ua)) {
 				o.os = 'windows';
-			} else if ((/macintosh/i).test(ua)) {
+			} else if ((/macintosh/i).test(_ua)) {
 				o.os = 'macintosh';
-			} else if ((/rhino/i).test(ua)) {
+			} else if ((/rhino/i).test(_ua)) {
 				o.os = 'rhino';
 			}
 
 			// Modern KHTML browsers should qualify as Safari X-Grade
-			if ((/KHTML/).test(ua)) {
+			if ((/KHTML/).test(_ua)) {
 				o.webkit = 1;
 			}
 			// Modern WebKit browsers are at least X-Grade
-			m = ua.match(/AppleWebKit\/([^\s]*)/);
+			m = _ua.match(/AppleWebKit\/([^\s]*)/);
 			if (m && m[1]) {
 				o.webkit = numberify(m[1]);
 
 				// Mobile browser check
-				if (/ Mobile\//.test(ua)) {
+				if (/ Mobile\//.test(_ua)) {
 					o.mobile = "Apple"; // iPhone or iPod Touch
 				} else {
-					m = ua.match(/NokiaN[^\/]*|Android \d\.\d|webOS\/\d\.\d/);
+					m = _ua.match(/NokiaN[^\/]*|Android \d\.\d|webOS\/\d\.\d/);
 					if (m) {
 						o.mobile = m[0]; // Nokia N-series, Android, webOS,
 						// ex:
@@ -1132,14 +1165,14 @@ UserAction = {
 					}
 				}
 
-				var m1 = ua.match(/Safari\/([^\s]*)/);
+				var m1 = _ua.match(/Safari\/([^\s]*)/);
 				if (m1 && m1[1]) // Safari
 					o.safari = numberify(m1[1]);
-				m = ua.match(/Chrome\/([^\s]*)/);
+				m = _ua.match(/Chrome\/([^\s]*)/);
 				if (o.safari && m && m[1]) {
 					o.chrome = numberify(m[1]); // Chrome
 				} else {
-					m = ua.match(/AdobeAIR\/([^\s]*)/);
+					m = _ua.match(/AdobeAIR\/([^\s]*)/);
 					if (m) {
 						o.air = m[0]; // Adobe AIR 1.0 or better
 					}
@@ -1151,26 +1184,28 @@ UserAction = {
 				// fi; U;
 				// try get firefox and it's ver
 				// ssr)
-				m = ua.match(/Opera[\s\/]([^\s]*)/);
+				m = _ua.match(/Opera[\s\/]([^\s]*)/);
 				if (m && m[1]) {
 					o.opera = numberify(m[1]);
-					m = ua.match(/Opera Mini[^;]*/);
+					m = _ua.match(/Opera Mini[^;]*/);
 					if (m) {
 						o.mobile = m[0]; // ex: Opera Mini/2.0.4509/1316
 					}
 				} else { // not opera or webkit
-					m = ua.match(/MSIE\s([^;]*)/);
+					m = _ua.match(/MSIE\s([^;]*)/);
 					if (m && m[1]) {
 						o.ie = numberify(m[1]);
 					} else { // not opera, webkit, or ie
-						m = ua.match(/Gecko\/([^\s]*)/);
+						m = _ua.match(/Gecko\/([^\s]*)/);
 						if (m) {
 							o.gecko = 1; // Gecko detected, look for revision
-							m = ua.match(/rv:([^\s\)]*)/);
+							m = _ua.match(/rv:([^\s\)]*)/);
 							if (m && m[1]) {
 								o.gecko = numberify(m[1]);
 							}
 						}
+						m = _ua.match("Firefox/([^\s]*)");
+						o.firefox = numberify(m[1]);
 					}
 				}
 			}
@@ -1208,6 +1243,40 @@ UserAction = {
 					}, delay);
 				} else
 					$(this).trigger('next');
+			}
+		};
+		return check;
+	},
+	fnQueue : function() {
+		var check = {
+			fnlist : [],
+			/**
+			 * 该方法会在fn上注册一个delay属性
+			 * 
+			 * @param fn
+			 * @param delay
+			 */
+			add : function(fn, delay) {
+				delay && (fn.delay = delay);
+				check.fnlist.push(fn);
+				return check;
+			},
+			/**
+			 * 自动下一个
+			 */
+			next : function() {
+				if(check.fnlist.length == 0)
+					return;
+				var fn = check.fnlist[0];		
+				if (fn.delay) {
+					setTimeout(check.next, fn.delay);
+					delete fn.delay;
+				} else {
+					check.fnlist.shift()();
+					// 切断堆栈
+					// setTimeout(fnQueue.next, 0);
+					check.next();
+				}
 			}
 		};
 		return check;
