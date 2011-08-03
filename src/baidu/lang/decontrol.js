@@ -8,8 +8,6 @@
  * $date$
  */
 
-///import baidu.lang._instances;
-
 /**
  * 解除instance中对指定类实例的引用关系。
  * @name baidu.lang.decontrol
@@ -20,6 +18,7 @@
  * @see baidu.lang.instance
  */
 baidu.lang.decontrol = function(guid) {
-    var m = window[baidu.guid];
-    m._instances && (delete m._instances[guid]);
+    var i;
+    (i = baidu._instances) && (delete i[guid]);
 };
+// 20110722 meizz 舍弃 baidu.lang._instances，这个模块无用

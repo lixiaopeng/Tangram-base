@@ -16,7 +16,7 @@
  * @return  {object}            信息
  */
 (function(){
-    var global = window[baidu.guid];
+    var global = window[baidu.guid].global;
 
     baidu.global.get = function(key) {
         return global[key];

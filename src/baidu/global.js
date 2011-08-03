@@ -13,3 +13,6 @@
  * @author meizz
  */
 baidu.global = baidu.global || {};
+
+// 将全局存放在的变量都集中到一个地方
+window[baidu.guid].global = window[baidu.guid].global || {};

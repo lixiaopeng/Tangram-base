@@ -9,7 +9,6 @@
  */
 
 ///import baidu.lang.guid;
-///import baidu.lang._instances;
 ///import baidu.lang.isFunction;
 
 /**
@@ -24,10 +23,14 @@
  * @see baidu.lang.inherits,baidu.lang.Event
  */
 baidu.lang.Class = function(guid) {
-    this.guid = guid || baidu.lang.guid();
-    window[baidu.guid]._instances[this.guid] = this;
+    this.guid = this.guid || guid || baidu.lang.guid();
+    baidu._instances[this.guid] = this;
 };
-window[baidu.guid]._instances = window[baidu.guid]._instances || {};
+
+// 将_instances 变量的访问从原来的 window 向下访问改成直接访问 20110801
+baidu._instances =
+window[baidu.guid]._instances =
+window[baidu.guid]._instances || {};
 
 /**
  * 释放对象所持有的资源，主要是自定义事件。
@@ -36,12 +39,10 @@ window[baidu.guid]._instances = window[baidu.guid]._instances || {};
  * TODO: 将_listeners中绑定的事件剔除掉
  */
 baidu.lang.Class.prototype.dispose = function(){
-    delete window[baidu.guid]._instances[this.guid];
+    delete baidu._instances[this.guid];
 
     for(var property in this){
-        if (!baidu.lang.isFunction(this[property])) {
-            delete this[property];
-        }
+        typeof this[property] != "function" && (delete this[property]);
     }
     this.disposed = true;   // 20100716
 };
@@ -51,5 +52,19 @@ baidu.lang.Class.prototype.dispose = function(){
  * @return {string} 对象的String表示形式
  */
 baidu.lang.Class.prototype.toString = function(){
-    return "[object " + (this._className || "Object" ) + "]";
+    return "[object " + (this.__type || "Object" ) + "]";
 };
+
+/**
+ * 返回用户指定 guid 的实例对象
+ *
+ * @param   {string}        guid    需要获取实例的guid
+ * @returns {Object|null}           如果存在的话，返回;否则返回null。
+ */
+window.baiduInstance = function(guid) {
+    return baidu && baidu._instances && baidu._instances[guid];
+};
+
+// 20110722 meizz 对于 _instances 集合从原来的 window 往下找改成 一步到位，提升效率
+// 20110722 meizz 废除对 isFunction 的引用，在这种应用环境里不需要外挂这个模块
+// 20110722 meizz 添加 baiduInstance(guid) 这个全局方法，原来的 baidu.lang.instance(guid) 是一个无效的方法，因为 baidu 这个顶级域名被闭包之后，这个方法就失效了。

@@ -14,15 +14,16 @@
  *
  * @param   {string}    key         信息对应的 key 值
  * @param   {object}    value       被存储的信息
- * @param   {boolean}   overwrite   是否被覆盖
+ * @param   {boolean}   protected_  保护原值不被覆盖
  * @return  {object}                信息
  */
 (function(){
-    var global = window[baidu.guid];
+    var global = window[baidu.guid].global;
 
-    baidu.global.set = function(key, value, overwrite) {
-        var e = global[key];
-        global[key] = overwrite ? value : (typeof e != "undefined" ? e : value);
+    baidu.global.set = function(key, value, protected_) {
+        var b = !protected_ || (protected_ && typeof global[key] == "undefined");
+
+        b && (global[key] = value);
         return global[key];
     };
 })();
