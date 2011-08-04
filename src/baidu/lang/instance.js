@@ -21,5 +21,5 @@
  * @returns {Object|null} 如果存在的话，返回;否则返回null。
  */
 baidu.lang.instance = function (guid) {
-    return window[baidu.guid]._instances[guid] || null;
+    return baidu._instances[guid] || null;
 };

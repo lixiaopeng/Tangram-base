@@ -9,7 +9,7 @@
 
 ///import baidu.lang;
 ///import baidu.lang.Class;
-///import baidu.lang.Event;
+///import baidu.global.get;
 
 /**
  * 创建一个类，包括创造类的构造器、继承基类Class
@@ -30,7 +30,6 @@
  *             
  * @returns {Object} 一个类对象
  */
-
 baidu.lang.createClass = function(constructor, options) {
     options = options || {};
     var superClass = options.superClass || baidu.lang.Class;
@@ -44,6 +43,13 @@ baidu.lang.createClass = function(constructor, options) {
             superClass.call(this);
         }
         constructor.apply(this, arguments);
+
+        var register = baidu.global.get(this.__type + baidu.version);
+        if (register) {
+            for (var i=0, n=register.length; i<n; i++) {
+                register[i](this);
+            }
+        }
     };
 
     fn.options = options.options || {};
@@ -55,10 +61,13 @@ baidu.lang.createClass = function(constructor, options) {
     // 继承父类的原型（prototype)链
     var fp = fn.prototype = new C();
 
+    typeof options.type == "string" && (fp.__type = options.type);
+
+    // 每个实例都有一个 __super变量指向它的父类
+    fp.__super = superClass;
+
     // 继承传参进来的构造器的 prototype 不会丢
     for (var i in cp) fp[i] = cp[i];
-
-    typeof options.className == "string" && (fp._className = options.className);
 
     // 修正这种继承方式带来的 constructor 混乱的问题
     fp.constructor = cp.constructor;

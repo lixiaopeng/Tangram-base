@@ -19,13 +19,14 @@
  * @returns {String} 当前页面的唯一标识字符串
  */
 ///import baidu.lang;
-(function(){
+(function(global){
     //不直接使用window，可以提高3倍左右性能
-    var guid = window[baidu.guid];
+    global._counter = global._counter || 1;
 
     baidu.lang.guid = function() {
-        return "TANGRAM__" + (guid._counter ++).toString(36);
+        return "TANGRAM__" + global._counter ++;
     };
 
-    guid._counter = guid._counter || 1;
-})();
+})(window[baidu.guid]);
+
+// 20110803 将 window[baidu.guid] 作为参数传递的闭包中

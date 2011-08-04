@@ -43,8 +43,11 @@ baidu.lang.inherits = function (subClass, superClass, className) {
 
     // 类名标识，兼容Class的toString，基本没用
     if ("string" == typeof className) {
-        proto._className = className;
+        proto.__type = className;
     }
+
+    // 20110803 添加 extend 方法，以简化代码书写
+    return {extend: function(json){for(var i in json) p[i] = json[i]}};
 };
 
 // 声明快捷方法
