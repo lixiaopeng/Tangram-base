@@ -1,6 +1,6 @@
 module('baidu.dom.ready');
 
-test('页面载入完毕后调用该方法？', function() {
+test('dom ready after onload', function() {
 	stop();
 	expect(1);
 	baidu.dom.ready(function() {
@@ -31,4 +31,29 @@ test('ready before onload', function() {
 		TT.e(f).remove();
 		start();
 	}, 1000);
+});
+
+test('ready after onload', function() {
+	expect(2);
+	stop();
+	setTimeout(function() {
+		var script = document.createElement('script');
+		script.src = '../../tools/br/import.php?f=baidu.dom.ready';
+		var fun = function(){
+			if(ua.browser.ie && this.readyState == 'loaded' || !ua.browser.ie){
+				ok(true, "onload");
+				baidu.dom.ready(function() {
+						ok(true, "dom ready");
+						start();	
+				});
+			}
+		};
+		if(ua.browser.ie){
+			script.onreadystatechange = fun; 
+		}
+		else{
+			script.onload = fun;	
+		}
+		document.getElementsByTagName('head')[0].insertBefore(script, document.getElementsByTagName('head')[0].lastChild);
+	}, 100);
 });
